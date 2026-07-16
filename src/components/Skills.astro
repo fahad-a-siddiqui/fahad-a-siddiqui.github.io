@@ -1,0 +1,64 @@
+---
+import { skillGroups } from '../data/skills';
+import { Icon } from 'astro-icon/components';
+---
+
+<section id="skills" class="section">
+  <div class="container">
+    <div class="section__head">
+      <p class="section__eyebrow">Skills</p>
+      <h2>Tools I work with</h2>
+    </div>
+
+    <div class="skills">
+      {skillGroups.map((group) => (
+        <div class="skills__group">
+          <h3 class="skills__group-title">{group.title}</h3>
+          <ul class="skills__list">
+            {group.skills.map((skill) => (
+              <li class="skill chip">
+                {skill.icon && <Icon name={skill.icon} class="skill__icon" />}
+                <span>{skill.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  .skills__group-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    margin-bottom: 1rem;
+  }
+  .skills__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+  }
+  .skill {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--text);
+    padding: 0.45rem 0.85rem;
+  }
+  .skill__icon {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+  }
+  .skill:hover {
+    border-color: var(--border-strong);
+  }
+</style>

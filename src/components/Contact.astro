@@ -1,0 +1,104 @@
+---
+import { contact, socials } from '../data/site';
+import { Icon } from 'astro-icon/components';
+import LiveClock from './LiveClock.astro';
+---
+
+<section id="contact" class="section">
+  <div class="container contact__grid">
+    <div class="contact__intro">
+      <p class="section__eyebrow">Contact</p>
+      <h2>Let's talk</h2>
+      <p class="section__lead">
+        Building something that crosses a few system boundaries? That's the work
+        I like. Reach out — I usually reply within a day.
+      </p>
+      <LiveClock />
+    </div>
+
+    <ul class="contact__methods">
+      <li>
+        <a class="contact__item card" href={`mailto:${contact.email}`}>
+          <svg class="contact__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+          </svg>
+          <span class="contact__label">Email</span>
+          <span class="contact__value">{contact.email}</span>
+        </a>
+      </li>
+      <li>
+        <a class="contact__item card" href={`tel:${contact.phoneHref}`}>
+          <svg class="contact__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 12l2 4v4a2 2 0 0 1-2 2 16 16 0 0 1-16-16 2 2 0 0 1 2-2Z" />
+          </svg>
+          <span class="contact__label">Phone</span>
+          <span class="contact__value">{contact.phone}</span>
+        </a>
+      </li>
+      {socials.map((s) => (
+        <li>
+          <a class="contact__item card" href={s.href} target="_blank" rel="noopener noreferrer">
+            <Icon name={s.icon} class="contact__icon" aria-hidden="true" />
+            <span class="contact__label">{s.label}</span>
+            <span class="contact__value">{s.href.replace(/^https?:\/\//, '')}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .contact__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .contact__intro :global(.live-clock) {
+    margin-top: 1.5rem;
+  }
+  .contact__methods {
+    display: grid;
+    gap: 0.75rem;
+    list-style: none;
+  }
+  .contact__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 1rem;
+    row-gap: 0.1rem;
+    align-items: center;
+    padding: 0.7rem 1.25rem;
+    color: var(--text);
+  }
+  .contact__item:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .contact__icon {
+    grid-row: 1 / 3;
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+  .contact__label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+  }
+  .contact__value {
+    color: var(--text);
+    font-size: 0.98rem;
+    word-break: break-word;
+  }
+
+  @media (max-width: 720px) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

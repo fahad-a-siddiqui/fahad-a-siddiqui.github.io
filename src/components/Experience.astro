@@ -1,0 +1,156 @@
+---
+import { roles, education } from '../data/experience';
+---
+
+<section id="experience" class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <p class="section__eyebrow">Experience</p>
+      <h2>Where I've made an impact</h2>
+      <p class="section__lead">Highlights and contributions — the shorter cut of the CV.</p>
+    </div>
+
+    <ol class="timeline">
+      {roles.map((role) => (
+        <li class="timeline__item">
+          <div class="timeline__marker" aria-hidden="true"></div>
+          <div class="timeline__content">
+            <div class="timeline__heading">
+              <h3 class="timeline__role">
+                {role.title} · <span class="timeline__company">{role.company}</span>
+              </h3>
+              <p class="timeline__meta">
+                {role.period}
+                {role.current && <span class="timeline__badge">Current</span>}
+                <span class="timeline__loc">· {role.location}</span>
+              </p>
+            </div>
+            <ul class="timeline__highlights">
+              {role.highlights.map((h) => <li>{h}</li>)}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="education">
+      <h3 class="education__title">Education</h3>
+      {education.map((e) => (
+        <div class="education__item">
+          <p class="education__degree">{e.degree}</p>
+          <p class="education__school">{e.school}</p>
+          <p class="education__meta">{e.period} · {e.location}</p>
+          {e.note && <p class="education__note">{e.note}</p>}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    list-style: none;
+    position: relative;
+    margin: 0;
+    padding-left: 1.75rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border-strong);
+  }
+  .timeline__item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+  .timeline__item:last-child {
+    padding-bottom: 0;
+  }
+  .timeline__marker {
+    position: absolute;
+    left: -1.75rem;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-dim);
+  }
+  .timeline__role {
+    margin: 0 0 0.25rem;
+    font-size: 1.2rem;
+  }
+  .timeline__company {
+    color: var(--accent-strong);
+  }
+  .timeline__meta {
+    margin: 0 0 0.9rem;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .timeline__badge {
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 0.05rem 0.5rem;
+    font-size: 0.72rem;
+  }
+  .timeline__highlights {
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .timeline__highlights li {
+    position: relative;
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+  }
+  .timeline__highlights li::before {
+    content: '▹';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .education {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .education__title {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+  }
+  .education__degree {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .education__school {
+    margin: 0.1rem 0;
+    color: var(--text-muted);
+  }
+  .education__meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-faint);
+  }
+  .education__note {
+    margin: 0.4rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+</style>

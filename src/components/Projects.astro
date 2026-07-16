@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+
+const all = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const apps = all.filter((p) => !p.data.aiNative);
+const workflows = all.filter((p) => p.data.aiNative);
+---
+
+<section id="projects" class="section">
+  <div class="container">
+    <div class="section__head">
+      <p class="section__eyebrow">Projects</p>
+      <h2>Things I've built</h2>
+    </div>
+
+    {all.length === 0 ? (
+      <p class="projects-empty">More projects coming soon.</p>
+    ) : (
+      <>
+        {apps.length > 0 && (
+          <ul class="projects-grid">
+            {apps.map((project) => (
+              <li><ProjectCard project={project} /></li>
+            ))}
+          </ul>
+        )}
+
+        {workflows.length > 0 && (
+          <div class="projects-subsection">
+            <h3 class="projects-subhead">AI-Native Workflows</h3>
+            <ul class="projects-grid">
+              {workflows.map((project) => (
+                <li><ProjectCard project={project} /></li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+</section>
+
+<style>
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+  }
+  .projects-subsection {
+    margin-top: 3.5rem;
+  }
+  .projects-subhead {
+    font-size: 1.35rem;
+    margin-bottom: 1.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .projects-empty {
+    color: var(--text-muted);
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+</style>

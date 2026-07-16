@@ -1,0 +1,314 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Contact from '../../components/Contact.astro';
+
+// One template drives every project detail page. Add a project = add a content
+// entry; no edits here (CLAUDE.md §4).
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { title, summary, role, problem, outcome, tech, liveUrl, repoUrl, cover, showCoverOnDetail, screenshots } =
+  project.data;
+const { Content } = await project.render();
+
+const facts = [
+  role && { label: 'Role', value: role },
+  problem && { label: 'Problem', value: problem },
+  outcome && { label: 'Outcome', value: outcome },
+].filter(Boolean) as { label: string; value: string }[];
+
+// The next few projects (wrapping around) to showcase at the bottom of the page.
+const allProjects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const currentIdx = allProjects.findIndex((p) => p.slug === project.slug);
+const otherProjects: CollectionEntry<'projects'>[] = [];
+for (let i = 1; i < allProjects.length && otherProjects.length < 4; i++) {
+  otherProjects.push(allProjects[(currentIdx + i) % allProjects.length]);
+}
+---
+
+<BaseLayout title={title} description={summary} path={`/projects/${project.slug}`}>
+  <Header slot="header" linkToHome />
+
+  <article class="project">
+    <div class="container project__container">
+      <a class="project__back" href="/#projects">← All projects</a>
+
+      <header class="project__header">
+        <h1>{title}</h1>
+        <p class="project__summary">{summary}</p>
+
+        {(liveUrl || repoUrl) && (
+          <div class="project__links">
+            {liveUrl && (
+              <a class="btn btn--primary" href={liveUrl} target="_blank" rel="noopener noreferrer">
+                Live site
+              </a>
+            )}
+            {repoUrl && (
+              <a class="btn btn--ghost" href={repoUrl} target="_blank" rel="noopener noreferrer">
+                Source
+              </a>
+            )}
+          </div>
+        )}
+      </header>
+
+      {cover && showCoverOnDetail && (
+        <div class="project__cover">
+          <Image src={cover} alt={`${title} preview`} widths={[320, 640]} sizes="(max-width: 640px) 80vw, 320px" />
+        </div>
+      )}
+
+      <div class="project__layout">
+        <div class="project__content">
+          <Content />
+
+          {tech.length > 0 && (
+            <div class="project__tech">
+              <h2 class="project__tech-title">Tech used</h2>
+              <ul>
+                {tech.map((t) => <li class="chip">{t}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <aside class="project__aside">
+          {facts.length > 0 && (
+            <dl class="project__facts card">
+              {facts.map((f) => (
+                <div class="project__fact">
+                  <dt>{f.label}</dt>
+                  <dd>{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </aside>
+      </div>
+
+      {screenshots.length > 0 && (
+        <section class="project__gallery" aria-label="Screenshots">
+          {screenshots.map((shot) => (
+            <figure class="project__shot">
+              <Image src={shot.src} alt={shot.alt} widths={[600, 1200]} sizes="(max-width: 900px) 100vw, 800px" />
+              <figcaption>{shot.alt}</figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+
+      {otherProjects.length > 0 && (
+        <section class="project__more" aria-label="More projects">
+          <div class="project__more-head">
+            <h2 class="project__more-title">More projects</h2>
+            <a class="project__more-link" href="/#projects">View all projects →</a>
+          </div>
+          <ul class="project__more-grid">
+            {otherProjects.map((p) => (
+              <li><ProjectCard project={p} /></li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  </article>
+
+  <Contact />
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .project__container {
+    max-width: 900px;
+    padding-block: clamp(2.5rem, 6vw, 4rem);
+  }
+  .project__back {
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .project__back:hover {
+    color: var(--accent-strong);
+  }
+  .project__header {
+    margin-bottom: 2.5rem;
+  }
+  .project__summary {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+  .project__links {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .project__cover {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 2.75rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+  }
+  .project__cover :global(img) {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 520px;
+  }
+
+  .project__layout {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 3rem;
+    align-items: start;
+    margin-top: 1rem;
+  }
+
+  /* Long-form markdown body */
+  .project__content :global(h2) {
+    margin-top: 2rem;
+    font-size: 1.4rem;
+  }
+  .project__content :global(p) {
+    color: var(--text-muted);
+  }
+  .project__content :global(strong) {
+    color: var(--text);
+  }
+  .project__content :global(a) {
+    text-decoration: underline;
+  }
+
+  .project__aside {
+    position: sticky;
+    top: 5rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .project__facts {
+    padding: 1.25rem;
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+  .project__fact dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    margin-bottom: 0.25rem;
+  }
+  .project__fact dd {
+    margin: 0;
+    color: var(--text);
+    font-size: 0.92rem;
+  }
+  .project__tech {
+    margin-top: 2rem;
+  }
+  .project__tech-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    margin-bottom: 0.75rem;
+  }
+  .project__tech ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .project__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.75rem;
+    margin-top: 3rem;
+    align-items: start;
+  }
+  .project__shot {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .project__shot :global(img) {
+    width: 100%;
+    max-height: 640px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+  }
+  .project__shot figcaption {
+    margin-top: 0.6rem;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .project__more {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .project__more-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .project__more-title {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  .project__more-link {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .project__more-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+  }
+
+  @media (max-width: 780px) {
+    .project__layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .project__aside {
+      position: static;
+    }
+  }
+</style>

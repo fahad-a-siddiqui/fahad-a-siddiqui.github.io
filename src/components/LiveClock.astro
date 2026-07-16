@@ -1,0 +1,62 @@
+---
+import { site } from '../data/site';
+---
+
+<!--
+  Live local-time clock (PKT, UTC+5, no DST — CLAUDE.md §4).
+  Uses Intl with an explicit IANA timezone so it shows Fahad's local time
+  regardless of the visitor's timezone. Small progressive-enhancement script;
+  the markup degrades to a static label if JS is off.
+-->
+<div class="live-clock" data-timezone={site.timezone}>
+  <span class="live-clock__dot" aria-hidden="true"></span>
+  <span class="live-clock__label">Local time (PKT)</span>
+  <time class="live-clock__time" aria-live="polite">—:—:—</time>
+</div>
+
+<style>
+  .live-clock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .live-clock__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .live-clock__time {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+
+<script>
+  const el = document.querySelector('.live-clock');
+  const timeEl = el?.querySelector('.live-clock__time');
+  const tz = (el as HTMLElement | null)?.dataset.timezone;
+  if (timeEl && tz) {
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: tz,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    const tick = () => {
+      timeEl.textContent = fmt.format(new Date());
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>
